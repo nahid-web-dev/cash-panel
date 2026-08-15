@@ -6,12 +6,15 @@ export function proxy(request) {
   const token = request.cookies.get("token")?.value;
   const { pathname } = request.nextUrl;
 
-  const publicRoutes = ["/login", "/api/auth/login", "/api/invoices/generate"];
+  const publicRoutes = [
+    "/login",
+    "/api/auth/login",
+    "/api/invoices/generate",
+    "/api/users/create-admin",
+  ];
 
   // 2. Define public routes that don't require authentication
   const isPublicRoute = publicRoutes.includes(pathname);
-
-  console.log(pathname, token, isPublicRoute);
 
   // 3. If NO token exists and user tries to access a protected route
   if (!token && !isPublicRoute) {

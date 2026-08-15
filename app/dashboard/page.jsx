@@ -4,11 +4,14 @@ import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { LoaderCircle, Wallet } from "lucide-react";
 
 export default function DashboardPage() {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [balance, setBalance] = useState(0);
+  const [loadingBalance, setLoadingBalance] = useState(true);
 
   const router = useRouter();
 
@@ -45,8 +48,6 @@ export default function DashboardPage() {
 
         if (data?.settled === true) {
           state = "paid";
-        } else if (data?.status !== "OK") {
-          state = "expired";
         } else {
           state = "unpaid";
         }
@@ -77,8 +78,6 @@ export default function DashboardPage() {
           params: {
             page: currentPage,
             limit: limit,
-            user: "current_user_name", // Replace with auth session data
-            role: "user", // Replace with auth session role ("admin" | "user")
           },
         });
 
@@ -106,6 +105,21 @@ export default function DashboardPage() {
   useEffect(() => {
     fetchInvoices(page);
   }, [page, fetchInvoices]);
+
+  const fetchBalance = useCallback(async () => {
+    setLoadingBalance(true);
+    const response = await axios.get("/api/get-balance");
+    if (response.data?.success) {
+      setBalance(response?.data?.balance);
+    } else {
+      setBalance(0);
+    }
+    setLoadingBalance(false);
+  });
+
+  useEffect(() => {
+    fetchBalance();
+  }, []);
 
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
@@ -168,12 +182,35 @@ export default function DashboardPage() {
             </p>
           </div>
           <button
-            onClick={() => fetchInvoices(page)}
+            onClick={() => {
+              fetchInvoices(page);
+              fetchBalance();
+            }}
             disabled={loading}
             className="px-4 py-2.5 bg-[#00d632] hover:bg-[#00b82b] active:scale-95 text-white font-bold text-sm rounded-xl transition-all shadow-md shadow-[#00d632]/20 border border-[#00d632]/30 disabled:opacity-50 cursor-pointer"
           >
             {loading ? "Refreshing..." : "Refresh List"}
           </button>
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between p-5 bg-white rounded-2xl border border-gray-100 shadow-sm max-w-60">
+            <div className="space-y-1">
+              <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+                Total Balance
+              </p>
+              {loadingBalance ? (
+                <LoaderCircle className="w-6 h-6 text-green-500 animate-spin" />
+              ) : (
+                <h2 className="text-3xl font-bold tracking-tight text-gray-900">
+                  ${balance}
+                </h2>
+              )}
+            </div>
+            <div className="p-3 bg-emerald-50 rounded-xl text-emerald-600">
+              <Wallet className="w-6 h-6" />
+            </div>
+          </div>
         </div>
 
         {/* Error Alert */}
@@ -193,7 +230,7 @@ export default function DashboardPage() {
                 <th className="py-4 px-6">Amount</th>
                 <th className="py-4 px-6">Created At</th>
                 <th className="py-4 px-6">Paid Status</th>
-                <th className="py-4 px-6">Withdraw</th>
+                {/* <th className="py-4 px-6">Withdraw</th> */}
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 font-mono">
@@ -251,7 +288,7 @@ export default function DashboardPage() {
                       {renderStatusBadge(statuses[inv.id])}
                     </td>
 
-                    <td className="py-4 px-6 font-sans">
+                    {/* <td className="py-4 px-6 font-sans">
                       {inv.withdrawStatus ? (
                         inv.withdrawStatus
                       ) : renderStatusBadge(statuses[inv.id]) == "paid" ? (
@@ -283,7 +320,7 @@ export default function DashboardPage() {
                       ) : (
                         "--"
                       )}
-                    </td>
+                    </td> */}
                   </tr>
                 ))
               )}
