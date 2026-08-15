@@ -63,7 +63,7 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       message: "Balance fetched successfully",
-      balance: totalBalance,
+      balance: totalBalance.toFixed(2),
     });
   } catch (error) {
     console.error("Balance calculation error:", error?.message);
