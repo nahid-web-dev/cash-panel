@@ -137,7 +137,7 @@ export default function DashboardPage() {
       );
     }
 
-    switch (statusInfo.state) {
+    switch (statusInfo.label === "paid") {
       case "settled":
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-[#00d632]/15 text-[#008a20] border border-[#00d632]/40">
@@ -145,14 +145,7 @@ export default function DashboardPage() {
             {statusInfo.label}
           </span>
         );
-      case "pending":
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-600 border border-amber-500/30">
-            <span className="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
-            {statusInfo.label}
-          </span>
-        );
-      case "failed":
+      case "unpaid":
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-500/10 text-rose-600 border border-rose-500/30">
             <span className="h-1.5 w-1.5 rounded-full bg-rose-500"></span>
